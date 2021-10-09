@@ -1,0 +1,26 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo '👨‍🔬🛠️ Styling, testing and building'
+
+npm run check-types || (
+    echo '🌋Type check ERROR'
+    false;
+)
+
+npm run check-format || (
+    echo '🌋Styling ERROR'
+    false;
+)
+
+npm run check-lint || (
+    echo '🌋Linting Error'
+    false;
+)
+
+echo '👌 Looks great. Building...'
+
+npm run build || (
+    echo '❌Error while building❌'
+    false;
+)
