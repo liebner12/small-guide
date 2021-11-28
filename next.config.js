@@ -12,6 +12,7 @@ module.exports = withPWA({
   },
   env: {
     GOOGLE_MAPS_KEY: process.env.GOOGLE_MAPS_KEY,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
   pwa: {
     dest: 'public',
