@@ -1,7 +1,7 @@
 import London from '../../assets/images/london.jpg';
 import Rome from '../../assets/images/rome.jpg';
 import Prague from '../../assets/images/prague.jpg';
-import Paris from '../../assets/images/Paris.jpg';
+import Paris from '../../assets/images/paris.jpg';
 import ShortCard from '../elements/ShortCard/ShortCard';
 
 const PlacesContainer = () => (
