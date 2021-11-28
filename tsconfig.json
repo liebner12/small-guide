@@ -19,8 +19,9 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2018"
+    "target": "es2018",
+    "incremental": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "logic/adapter/auth.ts"]
 }
