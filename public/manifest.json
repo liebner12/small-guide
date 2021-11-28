@@ -23,8 +23,8 @@
       "name": "Favorites trips",
       "short_name": "Favorites",
       "description": "View favorites trips",
-      "url": "/favorites?source=pwa",
-      "icons": [{ "src": "/images/favorites.svg", "sizes": "96x96" }]
+      "url": "/favorites",
+      "icons": [{ "src": "/images/favorites.png", "sizes": "96x96" }]
     }
   ],
   "description": "Trips around the globe with fast directions"
