@@ -6,17 +6,52 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "husky install",
+    "check-types": "tsc -pretty --noEmit",
+    "check-format": "prettier --check .",
+    "check-lint": "eslint . --ext ts --ext tsx --ext js",
+    "format": "prettier --write .",
+    "test-all": "npm run check-format && npm run check-lint && npm run check-types && npm run build"
   },
   "dependencies": {
-    "next": "11.1.2",
+    "@next-auth/firebase-adapter": "^0.1.2-pr.183-76202b42.8",
+    "@reduxjs/toolkit": "^1.6.2",
+    "axios": "^0.24.0",
+    "browser-image-compression": "^1.0.16",
+    "firebase": "^9.5.0",
+    "framer-motion": "^5.3.3",
+    "google-map-react": "^2.1.10",
+    "natural": "^5.1.11",
+    "next": "^12.0.4",
+    "next-auth": "^4.0.0-beta.7",
+    "next-pwa": "^5.4.0",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "react-icons": "^4.3.1",
+    "react-redux": "^7.2.5",
+    "stopword": "^1.0.11",
+    "swr": "^1.0.1",
+    "vector-object": "^1.3.0"
   },
   "devDependencies": {
-    "@types/react": "17.0.21",
-    "eslint": "7.32.0",
+    "@types/google-map-react": "^2.1.3",
+    "@types/natural": "^5.1.0",
+    "@types/node": "^16.10.3",
+    "@types/react": "^17.0.27",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "autoprefixer": "^10.3.7",
+    "eslint": "^7.32.0",
+    "eslint-config-google": "^0.14.0",
     "eslint-config-next": "11.1.2",
-    "typescript": "4.4.3"
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-react": "^7.26.1",
+    "husky": "^7.0.0",
+    "postcss": "^8.3.8",
+    "prettier": "^2.4.1",
+    "sass": "^1.42.1",
+    "tailwindcss": "^2.2.19",
+    "typescript": "^4.4.3"
   }
 }

@@ -1,0 +1,4 @@
+/.next
+/next-env.d.ts
+/logic/adapter/auth.ts
+/public
