@@ -10,6 +10,16 @@ module.exports = withPWA({
       'firebasestorage.googleapis.com',
     ],
   },
+  env: {
+    FIREBASE_API_KEY: '',
+    FIREBASE_MESSAGING_SENDER_ID: '',
+    FIREBASE_APP_ID: '',
+    FIREBASE_MEASURMENT_ID: '',
+    NEXTAUTH_URL: '',
+    GOOGLE_CLIENT_ID: '',
+    GOOGLE_CLIENT_SECRET: '',
+    GOOGLE_MAPS_KEY: '',
+  },
   pwa: {
     dest: 'public',
   },
