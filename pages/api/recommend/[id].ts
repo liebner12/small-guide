@@ -95,7 +95,7 @@ export default async function handler(
       // number of results that you want to return.
       const MAX_SIMILAR = 5;
       // min cosine similarity score that should be returned.
-      const MIN_SCORE = 0.55;
+      const MIN_SCORE = 0.6;
       const data: any = {};
 
       for (let i = 0; i < docVectors.length; i += 1) {
