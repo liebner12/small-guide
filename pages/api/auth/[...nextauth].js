@@ -32,7 +32,6 @@ const firebaseClient = {
 };
 
 export default NextAuth({
-  // Configure one or more authentication providers
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -44,7 +43,7 @@ export default NextAuth({
     newUser: '/auth/register',
   },
   callbacks: {
-    async session({ session, user, token }) {
+    async session({ session, user }) {
       session.user.uid = user.id;
       return session;
     },
