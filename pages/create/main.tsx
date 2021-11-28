@@ -59,7 +59,7 @@ const MainCreate: NextPage = () => {
         desc: desc,
         tags: tagsList,
         category: category,
-        author: session.user?.uid,
+        author: (session.user as any)?.uid,
         userName: userName,
         place: place.place,
         image: '',

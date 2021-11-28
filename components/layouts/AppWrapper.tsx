@@ -30,7 +30,7 @@ const AppWrapper = ({ children }: AppWrapper) => {
   };
 
   const fetchUser = async () => {
-    const docRef = doc(db, `users/${session?.user?.uid}`);
+    const docRef = doc(db, `users/${(session?.user as any).uid}`);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       dispatch(evenUser(docSnap.data().trip));

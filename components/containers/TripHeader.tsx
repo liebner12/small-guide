@@ -31,12 +31,12 @@ const TripHeader = ({ trip }: TripHeader) => {
     if (session?.user) {
       if (!isActive) {
         dispatch(pushUser(trip));
-        updateDoc(doc(db, `users/${session.user?.uid}`), {
+        updateDoc(doc(db, `users/${(session.user as any).uid}`), {
           trip: arrayUnion(trip),
         });
       } else {
         dispatch(removeUser(trip.id));
-        updateDoc(doc(db, `users/${session.user?.uid}`), {
+        updateDoc(doc(db, `users/${(session.user as any).uid}`), {
           trip: arrayRemove(trip),
         });
       }
