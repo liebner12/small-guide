@@ -18,8 +18,8 @@ const CategoryTrips = ({ trips, title }: CategoryTrips) => (
       </h2>
     </Link>
     <div className="flex flex-nowrap overflow-x-auto gap-8 pb-2 pr-4">
-      {trips.map((trip) => (
-        <MainCard key={trip.id} trip={trip} layoutId={trip.id} />
+      {trips.map((trip, index) => (
+        <MainCard key={trip.id + index} trip={trip} layoutId={trip.id} />
       ))}
     </div>
   </div>
