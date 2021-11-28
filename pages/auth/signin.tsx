@@ -26,22 +26,23 @@ const SignIn = ({ providers }: SignIn) => {
       <h1 className="text-3xl font-bold text-white self-center mt-2">
         Small guide
       </h1>
-      {Object.values(providers).map((provider) => (
-        <div key={provider.name} className="mt-auto">
-          <Button
-            onClick={() =>
-              signIntoProvider(provider.id, {
-                callbackUrl: '/',
-              })
-            }
-            size="big"
-            className="w-full justify-center"
-            icon={<AiOutlineGoogle className="h-8 w-8 mr-2" />}
-          >
-            Sign in with {provider.name}
-          </Button>
-        </div>
-      ))}
+      {providers &&
+        Object.values(providers).map((provider) => (
+          <div key={provider.name} className="mt-auto">
+            <Button
+              onClick={() =>
+                signIntoProvider(provider.id, {
+                  callbackUrl: '/',
+                })
+              }
+              size="big"
+              className="w-full justify-center"
+              icon={<AiOutlineGoogle className="h-8 w-8 mr-2" />}
+            >
+              Sign in with {provider.name}
+            </Button>
+          </div>
+        ))}
     </div>
   );
 };
