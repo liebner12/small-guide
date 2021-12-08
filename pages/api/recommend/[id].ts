@@ -4,7 +4,7 @@ import natural from 'natural';
 import { collection, getDocs, query, limit } from '@firebase/firestore';
 import { db } from '../../../firebase';
 import { ArrayTrips, Trip } from '../../../logic/Types/trip';
-const sw = require('stopword');
+
 const { TfIdf, PorterStemmer } = natural;
 
 const formatTrip = (trip: Trip) => {
@@ -18,12 +18,10 @@ const formatTrip = (trip: Trip) => {
     +(trip.place + ' ').repeat(20) +
     (trip.category + ' ').repeat(10)
   )
-    .toLocaleLowerCase()
+    .toLowerCase()
     .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '');
 
-  return sw
-    .removeStopwords(formatted.split(' '))
-    .map((word: any) => PorterStemmer.stem(word));
+  return formatted.split(' ').map((word: any) => PorterStemmer.stem(word));
 };
 
 const formatList = (list: ArrayTrips) => {
