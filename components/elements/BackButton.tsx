@@ -4,10 +4,17 @@ import Button from '../units/Button/Button';
 
 type BackButton = {
   className?: string;
+  onClick?: Function;
+  to?: string;
 };
 
-const BackButton = ({ className }: BackButton) => {
+const BackButton = ({ className, onClick, to }: BackButton) => {
   const router = useRouter();
+  const action = () => {
+    if (onClick) onClick();
+    if (!to) router.back();
+  };
+
   return (
     <Button
       icon={
@@ -17,7 +24,8 @@ const BackButton = ({ className }: BackButton) => {
       }
       type="iconClean"
       size="round"
-      onClick={() => router.back()}
+      onClick={() => action()}
+      to={to}
     />
   );
 };

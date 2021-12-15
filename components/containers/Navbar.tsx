@@ -2,9 +2,9 @@ import { FaUserAlt } from 'react-icons/fa';
 import {
   HiOutlineUser,
   HiOutlineHeart,
-  HiOutlineCog,
   HiOutlineX,
   HiPlus,
+  HiOutlineLogout,
 } from 'react-icons/hi';
 import NavbarToggle from '../elements/NavbarToggle';
 import NavItem from '../elements/NavItem';
@@ -12,6 +12,7 @@ import Button from '../units/Button/Button';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Session } from 'next-auth';
+import { signOut } from 'next-auth/react';
 
 const variants = {
   open: {
@@ -81,7 +82,16 @@ const Navbar = ({ isNavVisible, toggleNav, session }: Navbar) => {
           />
           <NavItem text="Saved" icon={<HiOutlineHeart />} to="/profile/saved" />
           <NavItem text="Add trip" icon={<HiPlus />} to="/create" />
-          <NavItem text="Settings" icon={<HiOutlineCog />} to="/" />
+          <NavItem
+            text="Logout"
+            icon={<HiOutlineLogout />}
+            to="/"
+            onClick={() =>
+              signOut({
+                callbackUrl: '/',
+              })
+            }
+          />
         </ul>
       </motion.div>
     </>

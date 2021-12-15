@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { FiSearch, FiArrowLeft, FiX } from 'react-icons/fi';
+import { FiSearch, FiArrowLeft } from 'react-icons/fi';
 import NavbarToggle from './NavbarToggle';
 import Link from '../units/Link';
 import Button from '../units/Button/Button';
 import { useRouter } from 'next/router';
 import useOnScreen from '../../logic/hooks/useOnScreen';
 import TextField from '../units/TextField';
+import { connectSearchBox } from 'react-instantsearch-dom';
 
 type SearchBar = {
   toggleNav: Function;
@@ -66,43 +66,48 @@ const SearchBar = ({ toggleNav }: SearchBar) => {
   );
 };
 
-export const SearchBarInput = () => {
-  const [text, setText] = useState('');
+const SearchBarInput = ({ currentRefinement, refine }: any) => {
   const router = useRouter();
+
   return (
-    <>
-      <div
-        className="flex items-center flex-start flex-1 z-30 sticky top-0 left-0 w-full mx-0 bg-dark border-b-2 border-primary px-4 py-2"
-        style={{ height: 54 }}
+    <div
+      className="flex w-full items-center bg-dark border-b-2 border-primary px-4 py-2"
+      style={{ height: 54 }}
+    >
+      <Button
+        icon={<FiArrowLeft className="text-white h-5 w-5" />}
+        type="iconClean"
+        className="flex-shrink-0 mr-3"
+        size="round"
+        onClick={() => router.back()}
+      />
+
+      <form
+        className="w-full"
+        noValidate
+        action=""
+        role="search"
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
       >
-        <TextField
-          setText={setText}
-          text={text}
-          placeholder="Type in town name..."
-          type="secondary"
-          autoFocus
-          icon={
-            <Button
-              icon={<FiArrowLeft className="text-white h-5 w-5" />}
-              type="iconClean"
-              className="flex-shrink-0 mr-3"
-              size="round"
-              onClick={() => router.back()}
+        <div className="flex items-center flex-start flex-1 z-30 sticky top-0 left-0 w-full mx-0">
+          <div className="w-full">
+            <TextField
+              setText={refine}
+              text={currentRefinement}
+              placeholder="Type in town name..."
+              type="secondary"
+              textType="search"
+              autoFocus
             />
-          }
-        />
-        {text && (
-          <Button
-            icon={<FiX className="text-white h-5 w-5" />}
-            type="iconClean"
-            className="flex-shrink-0 ml-3"
-            size="round"
-            onClick={() => setText('')}
-          />
-        )}
-      </div>
-    </>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 };
+
+export const CustomSearchBox = connectSearchBox(SearchBarInput);
 
 export default SearchBar;

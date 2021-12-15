@@ -1,11 +1,11 @@
 import { useSelector } from 'react-redux';
-import Places from '../../components/containers/Places';
 import CategoryTrips from '../containers/CategoryTrips';
 import { RootState } from '../../logic/redux/store';
 import Header from '../containers/Header';
 import { getFilteredTrip } from '../../logic/utils';
 import Image from 'next/image';
-import BackgroundImage from '../../assets/images/background.jpg';
+import BackgroundImage from '../../assets/images/background.webp';
+import DefaultCard from '../elements/DefaultCard/DefaultCard';
 
 const Home = () => {
   const trips = useSelector((state: RootState) => state.trip);
@@ -16,6 +16,8 @@ const Home = () => {
         <Image
           src={BackgroundImage}
           className="w-full h-full absolute"
+          layout="responsive"
+          objectFit="cover"
           placeholder="blur"
         />
       </div>
@@ -24,12 +26,23 @@ const Home = () => {
       <div className="relative">
         <Header />
         <main className="flex flex-col gap-6">
-          <div className="mx-4 flex flex-col gap-6">
-            <Places />
+          <div className="mx-4">
+            <h2 className="text-white text-base font-semibold mb-2 flex items-center justify-between mr-4">
+              Newest trip!
+            </h2>
+            <DefaultCard trip={trips[0]} layoutId={trips[0]?.id} />
           </div>
           <CategoryTrips
-            trips={getFilteredTrip(trips, 'City')}
+            trips={getFilteredTrip(trips.slice(1), 'City')}
             title="Trips in cities:"
+          />
+          <CategoryTrips
+            trips={getFilteredTrip(trips.slice(1), 'Sea')}
+            title="Near sea:"
+          />
+          <CategoryTrips
+            trips={getFilteredTrip(trips.slice(1), 'Mountain')}
+            title="Mountain trips:"
           />
         </main>
         <footer className="flex w-full justify-center mt-1">

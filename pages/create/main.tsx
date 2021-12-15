@@ -3,7 +3,11 @@ import { useState } from 'react';
 import Button from '../../components/units/Button/Button';
 import TextField from '../../components/units/TextField';
 import { useDispatch, useSelector } from 'react-redux';
-import { main } from '../../logic/redux/createTrip';
+import {
+  main,
+  tripPlan,
+  place as placeRedux,
+} from '../../logic/redux/createTrip';
 import { useSession } from 'next-auth/react';
 import BackButton from '../../components/elements/BackButton';
 import {
@@ -12,16 +16,21 @@ import {
   doc,
   serverTimestamp,
   updateDoc,
+  arrayUnion,
 } from '@firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from '@firebase/storage';
 import { db, storage } from '../../firebase';
 import { RootState } from '../../logic/redux/store';
 import { Place } from '../../logic/Types/createTrip';
-import FinishModal from '../../components/elements/FinishModal';
+import ConfirmModal from '../../components/elements/ConfirmModal';
 import router from 'next/router';
 import Dropdown from '../../components/units/Dropdown';
 import { TripCategoriesArray } from '../../logic/Types/trip';
 import { tripsCategories } from '../../logic/constants';
+import Loader from '../../components/units/Loader';
+import pageAuthenticated, {
+  PageAuthenticatedLoader,
+} from '../../components/containers/PageAuthenticated';
 
 const MainCreate: NextPage = () => {
   const dispatch = useDispatch();
@@ -40,12 +49,22 @@ const MainCreate: NextPage = () => {
     return name.length > 3 && desc.length > 20 && tag.split(', ').length > 0;
   };
 
+  const saveInStore = () => {
+    const tagsList = tag.split(', ');
+    dispatch(main({ name, desc, tags: tagsList }));
+  };
+
+  const clearStore = () => {
+    dispatch(tripPlan([{ value: 0, places: [], gmapsUrl: '' }]));
+    dispatch(placeRedux({ place: '', image: '' }));
+    dispatch(main({ name: '', desc: '', tags: [] }));
+  };
+
   const handleFinish = async () => {
     if (isValid()) {
       setSending(true);
-      const tagsList = tag.split(', ');
-      dispatch(main({ name, desc, tags: tagsList }));
       await handleCreateTrip();
+      clearStore();
       router.push('/');
     }
   };
@@ -63,6 +82,7 @@ const MainCreate: NextPage = () => {
         userName: userName,
         place: place.place,
         image: '',
+        saved: 0,
         trip: [],
         timeStamp: serverTimestamp(),
       });
@@ -76,6 +96,10 @@ const MainCreate: NextPage = () => {
         await updateDoc(doc(db, 'trips', docRef.id), {
           image: downloadUrl,
         });
+      });
+
+      updateDoc(doc(db, `users/${(session.user as any).uid}`), {
+        createdTrips: arrayUnion(docRef.id),
       });
 
       const uploadImage = async (place: Place) => {
@@ -112,24 +136,40 @@ const MainCreate: NextPage = () => {
         );
       };
 
-      changeTrip().then((res) =>
+      await changeTrip().then((res) => {
         updateDoc(doc(db, 'trips', docRef.id), {
           trip: res,
-        })
-      );
+        });
+      });
     }
   };
+  const { status } = useSession();
+  if (pageAuthenticated(status)) {
+    return <PageAuthenticatedLoader />;
+  }
 
   return (
     <>
       <div className="flex flex-col h-screen relative">
         {openModal && (
-          <FinishModal setVisible={setOpenModal} onFinish={handleFinish} />
+          <ConfirmModal setVisible={setOpenModal} onFinish={handleFinish} />
         )}
         {sending && (
-          <div className="absolute h-full w-full bg-dark z-50">Loading...</div>
+          <div className="absolute h-full w-full bg-dark z-50 grid place-items-center">
+            <div className="flex flex-col items-center justify-center gap-6">
+              <Loader />
+              <h1 className="font-bold text-2xl text-sky-200 px-4 text-center">
+                Trip is generated. <br />
+                Please wait...
+              </h1>
+            </div>
+          </div>
         )}
-        <BackButton className="ml-4 mt-4" />
+        <BackButton
+          className="ml-4 mt-4"
+          onClick={() => saveInStore()}
+          to="/create/place"
+        />
         <div className="mt-16 mx-4 pb-4">
           <h1 className="text-white font-bold text-3xl">Step 3</h1>
           <p className="text-grey mt-2 text-lg">

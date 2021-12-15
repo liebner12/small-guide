@@ -8,11 +8,32 @@ import styles from './Card.module.scss';
 
 type DefaultCard = {
   trip: Trip;
+  layoutId?: string;
 };
 
-const DefaultCard = ({ trip }: DefaultCard) => {
+const DefaultCard = ({ trip, layoutId }: DefaultCard) => {
+  if (!trip) {
+    return (
+      <div className="animate-pulse h-44 flex px-4 py-4 w-full bg-secondaryDark rounded-xl">
+        <div className="h-full w-full flex flex-col">
+          <div className="h-4 w-20 bg-gray-100 rounded-full ml-auto"></div>
+
+          <div className="space-y-4 mt-auto">
+            <div className="h-5 w-9/12 bg-gray-100 rounded-full mt-auto" />
+            <div className="h-3 w-7/12 bg-gray-100 rounded-full mt-auto" />
+            <div className="h-2 w-4/12 bg-gray-100 rounded-full mt-auto" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <motion.div className="w-full h-44 flex-shrink-0 relative">
+    <motion.div
+      className="w-full h-44 flex-shrink-0 relative"
+      layoutId={layoutId}
+      initial={false}
+    >
       <Link to={`/trip/${trip.id}`} className={styles.card}>
         <div className="w-full h-44 relative rounded-xl overflow-hidden">
           <Image

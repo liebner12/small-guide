@@ -8,6 +8,10 @@ import BackButton from '../../components/elements/BackButton';
 import ImagePicker from '../../components/elements/ImagePicker';
 import router from 'next/router';
 import { RootState } from '../../logic/redux/store';
+import { useSession } from 'next-auth/react';
+import pageAuthenticated, {
+  PageAuthenticatedLoader,
+} from '../../components/containers/PageAuthenticated';
 
 const CreatePlace: NextPage = () => {
   const dispatch = useDispatch();
@@ -28,10 +32,16 @@ const CreatePlace: NextPage = () => {
       router.push('/create/main');
     }
   };
+
+  const { status } = useSession();
+  if (pageAuthenticated(status)) {
+    return <PageAuthenticatedLoader />;
+  }
+
   return (
     <>
       <div className="flex flex-col h-screen">
-        <BackButton className="ml-4 mt-4" />
+        <BackButton className="ml-4 mt-4" to="/create" />
         <div className="mt-16 mx-4 pb-4 h-full flex flex-col">
           <h1 className="text-white font-bold text-3xl">Step 2</h1>
           <p className="text-grey mt-2 text-lg">
