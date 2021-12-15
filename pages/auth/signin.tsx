@@ -19,7 +19,7 @@ const SignIn = ({ providers }: SignIn) => {
       className="mx-4 h-screen py-4 flex flex-col"
       style={{ height: height }}
     >
-      <BackButton />
+      <BackButton to="/" />
       <div className="mt-20 flex justify-center">
         <Image src={logo} height="120px" width="120px" />
       </div>

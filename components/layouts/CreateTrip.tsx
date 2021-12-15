@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Slider from '../containers/Slider';
-import FinishModal from '../elements/FinishModal';
+import ConfirmModal from '../elements/ConfirmModal';
 import PlaceModal from '../elements/PlaceModal';
 import TripTopBar from '../elements/TripTopBar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,9 +34,9 @@ const CreateTrip = () => {
     return trip.filter((value) => value.value === currentDay)[0].places;
   };
 
-  const setDirectionsUrl = () => {
-    const firstPlace = getCurrentPlaces()[0];
-    const lastPlace = getCurrentPlaces()[getCurrentPlaces().length - 1];
+  const setDirectionsUrl = (trip: any) => {
+    const firstPlace = trip[0];
+    const lastPlace = trip[trip.length - 1];
     const firstPlaceId = firstPlace?.placeId
       ? `&origin_place_id=${firstPlace.placeId}`
       : '';
@@ -45,11 +45,9 @@ const CreateTrip = () => {
       : '';
     let url = `https://www.google.com/maps/dir/?api=1&origin=${firstPlace?.cords.lat},${firstPlace?.cords.lng}${firstPlaceId}&destination=${lastPlace?.cords.lat},${lastPlace?.cords.lng}${lastPlaceId}&waypoints=`;
 
-    getCurrentPlaces()
-      .slice(1, -1)
-      .forEach((place) => {
-        url += `${place.cords.lat},${place.cords.lng}%7C`;
-      });
+    trip.slice(1, -1).forEach((place: any) => {
+      url += `${place.cords.lat},${place.cords.lng}%7C`;
+    });
 
     return url;
   };
@@ -86,13 +84,14 @@ const CreateTrip = () => {
           maps={maps}
           setOpenModal={setOpenModal}
           isValid={isValid}
+          openModal={openModal}
           onFinish={onFinish}
         />
       )}
       {openModal && (
-        <FinishModal
+        <ConfirmModal
           setVisible={setOpenModal}
-          onFinish={() => router.back()}
+          onFinish={() => router.push('/')}
           text="Do you want to cancel this trip?"
         />
       )}

@@ -22,7 +22,9 @@ const Link = (props: LinkType) => {
   if ('to' in props) {
     return (
       <LinkNative href={props.to} {...restProps}>
-        <a className={className}>{children}</a>
+        <a className={className} onClick={onClick}>
+          {children}
+        </a>
       </LinkNative>
     );
   }

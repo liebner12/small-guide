@@ -11,8 +11,26 @@ type Recommended = {
 const Recommended = ({ id }: Recommended) => {
   const { data, error } = useSWR(`/api/recommend/${id}`, fetcher);
 
-  if (error) return <div>failed to load</div>;
-  if (!data) return <div>loading...</div>;
+  if (error) return <></>;
+  if (!data)
+    return (
+      <div className="animate-pulse mx-4 mb-16">
+        <div className="h-4 w-8/12 bg-gray-100 rounded-full mb-5" />
+        <div className="flex flex-nowrap overflow-x-auto gap-8 pb-2 pr-4">
+          {[1, 2, 3].map((index) => (
+            <div className="animate-pulse" key={index}>
+              <div className="h-28 w-48 flex px-4 py-4 bg-secondaryDark rounded-xl relative">
+                <div className="h-4 w-20 absolute bottom-2 bg-gray-100 rounded-full right-2"></div>
+              </div>
+              <div className="space-y-3 mt-3">
+                <div className="h-4 w-8/12 bg-gray-100 rounded-full mt-auto" />
+                <div className="h-2 w-6/12 bg-gray-100 rounded-full mt-auto" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
 
   return (
     <div className="mx-4 mb-16">
@@ -20,7 +38,7 @@ const Recommended = ({ id }: Recommended) => {
         Recommended for You
       </h2>
       <div className="flex flex-nowrap overflow-x-auto gap-8 pb-2 pr-4">
-        {data?.content.map((trip: Trip) => (
+        {data.content.map((trip: Trip) => (
           <MainCard key={trip.id} trip={trip} />
         ))}
       </div>

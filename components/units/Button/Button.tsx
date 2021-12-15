@@ -42,6 +42,8 @@ const Button = ({ children, className, icon, ...props }: ButtonProps) => {
 const COLOR = {
   primary:
     'bg-primary hover:bg-cyan-800 text-whiteGrey focus:text-white font-semibold',
+  warning:
+    'bg-red-600 hover:bg-red-700 text-whiteGrey focus:text-white font-semibold',
   icon: 'bg-black bg-opacity-40 backdrop-blur backdrop-filter rounded-full',
   iconClean: 'rounded-full',
   texted: 'text-white font-semibold',
@@ -58,7 +60,7 @@ const SIZE = {
 };
 
 type ButtonProps = {
-  type: 'primary' | 'icon' | 'texted' | 'iconClean' | 'plane';
+  type: 'primary' | 'icon' | 'texted' | 'iconClean' | 'plane' | 'warning';
   size?: 'primary' | 'small' | 'wide' | 'round' | 'noSize' | 'big';
   className?: string;
   children?: React.ReactChild | React.ReactChildren[];

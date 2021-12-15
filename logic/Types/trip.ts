@@ -2,6 +2,7 @@ import { FullTrip } from './createTrip';
 
 export type Trip = {
   id: string;
+  saved: number;
   author: string;
   category: TripCategorie;
   desc: string;

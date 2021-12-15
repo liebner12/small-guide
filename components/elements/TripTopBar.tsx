@@ -4,15 +4,51 @@ import Button from '../units/Button/Button';
 import { useCallback, useEffect, useRef } from 'react';
 import { GoogleMaps } from '../../logic/Types/createTrip';
 import useComponenFocus from '../../logic/hooks/useComponentFocus';
+import { useRouter } from 'next/router';
 
 type Props = {
   maps: GoogleMaps;
   setOpenModal: Function;
   isValid: Function;
   onFinish: Function;
+  openModal: Boolean;
 };
 
-const TripTopBar = ({ maps, setOpenModal, isValid, onFinish }: Props) => {
+const TripTopBar = ({
+  maps,
+  setOpenModal,
+  isValid,
+  onFinish,
+  openModal,
+}: Props) => {
+  const router = useRouter();
+  const browserTabcloseHandler = (e: any) => {
+    e.preventDefault();
+    e.returnValue = '';
+  };
+
+  useEffect(() => {
+    router.beforePopState((props: any) => {
+      if (openModal) {
+        return true;
+      }
+      console.log(props);
+      router.replace('/create');
+      window.history.pushState('/', '');
+      setOpenModal(true);
+
+      return false;
+    });
+    window.onbeforeunload = browserTabcloseHandler;
+    return () => {
+      if (window) {
+        window.onbeforeunload = null;
+      }
+      router.beforePopState(() => {
+        return true;
+      });
+    };
+  }, [openModal]);
   return (
     <>
       <div className="absolute top-2 w-full left-0 z-10 flex items-center">

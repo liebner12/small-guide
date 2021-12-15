@@ -6,6 +6,7 @@ import {
   MdSearch,
   MdFavoriteBorder,
   MdFavorite,
+  MdEdit,
 } from 'react-icons/md';
 import { motion, useViewportScroll, useTransform } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ interface Props {
   text: string;
   imageSrc: string | StaticImageData;
   id: string;
+  authorId: string;
   handleToFavorites: Function;
   isActive: boolean;
 }
@@ -23,6 +25,7 @@ const ItemHeader = ({
   text,
   imageSrc,
   id,
+  authorId,
   handleToFavorites,
   isActive,
 }: Props) => {
@@ -86,19 +89,28 @@ const ItemHeader = ({
               className="absolute z-10 bottom-2 right-2"
               style={{ right: offsetRight }}
             >
-              <Button
-                size="round"
-                icon={
-                  isActive ? (
-                    <MdFavorite className="h-6 w-6" />
-                  ) : (
-                    <MdFavoriteBorder className="h-6 w-6" />
-                  )
-                }
-                type="icon"
-                className="text-white"
-                onClick={() => handleToFavorites()}
-              ></Button>
+              {(session.user as any).uid === authorId ? (
+                <Button
+                  size="round"
+                  icon={<MdEdit className="h-6 w-6" />}
+                  type="icon"
+                  className="text-white"
+                ></Button>
+              ) : (
+                <Button
+                  size="round"
+                  icon={
+                    isActive ? (
+                      <MdFavorite className="h-6 w-6" />
+                    ) : (
+                      <MdFavoriteBorder className="h-6 w-6" />
+                    )
+                  }
+                  type="icon"
+                  className="text-white"
+                  onClick={() => handleToFavorites()}
+                ></Button>
+              )}
             </motion.div>
           )}
         </motion.div>

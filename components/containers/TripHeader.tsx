@@ -6,7 +6,7 @@ import { arrayUnion, doc, updateDoc, arrayRemove } from '@firebase/firestore';
 import { db } from '../../firebase';
 import { useSession } from 'next-auth/react';
 import { useDispatch, useSelector } from 'react-redux';
-import { pushUser, removeUser } from '../../logic/redux/user';
+import { pushSaved, removeSaved } from '../../logic/redux/user';
 import { RootState } from '../../logic/redux/store';
 import { useEffect, useState } from 'react';
 
@@ -21,7 +21,7 @@ const TripHeader = ({ trip }: TripHeader) => {
 
   useEffect(() => {
     const isFavorite = () => {
-      return trips.trips.some((item) => item.id === trip.id);
+      return trips?.trips?.some((item) => item.id === trip.id);
     };
     setActive(isFavorite());
   }, [trips.trips]);
@@ -30,14 +30,20 @@ const TripHeader = ({ trip }: TripHeader) => {
   const handleToFavorites = () => {
     if (session?.user) {
       if (!isActive) {
-        dispatch(pushUser(trip));
+        dispatch(pushSaved(trip));
         updateDoc(doc(db, `users/${(session.user as any).uid}`), {
           trip: arrayUnion(trip),
         });
+        updateDoc(doc(db, `trips/${trip.id}`), {
+          saved: trip.saved + 1,
+        });
       } else {
-        dispatch(removeUser(trip.id));
+        dispatch(removeSaved(trip.id));
         updateDoc(doc(db, `users/${(session.user as any).uid}`), {
           trip: arrayRemove(trip),
+        });
+        updateDoc(doc(db, `trips/${trip.id}`), {
+          saved: trip.saved - 1,
         });
       }
     }
@@ -46,6 +52,7 @@ const TripHeader = ({ trip }: TripHeader) => {
   return (
     <>
       <ItemHeader
+        authorId={trip.author}
         imageSrc={trip.image}
         text={trip.name}
         id={trip.id}
