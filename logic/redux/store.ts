@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import createTripReducer from './createTrip';
+import isLoadingReducer from './isLoading';
 import tripReducer from './trip';
 import userReducer from './user';
 
@@ -8,6 +9,7 @@ export const store = configureStore({
     tripCreate: createTripReducer,
     trip: tripReducer,
     user: userReducer,
+    isLoading: isLoadingReducer,
   },
 });
 

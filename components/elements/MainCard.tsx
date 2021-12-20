@@ -35,12 +35,12 @@ const MainCard = ({ trip, layoutId }: MainCard) => {
         <div className="w-full h-28 relative rounded-xl overflow-hidden">
           <div>
             <Image
-              src={trip.image}
+              src={trip?.image}
               alt={trip.name}
               layout="fill"
               objectFit="cover"
               placeholder="blur"
-              blurDataURL={trip.image}
+              blurDataURL={trip?.image}
             />
           </div>
           <Button className="absolute z-10 bottom-1 right-1" size="small">

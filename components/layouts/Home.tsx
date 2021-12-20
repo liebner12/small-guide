@@ -15,8 +15,7 @@ const Home = () => {
       <div className="w-full absolute h-96 top-0 left-0">
         <Image
           src={BackgroundImage}
-          className="w-full h-full absolute"
-          layout="responsive"
+          layout="fill"
           objectFit="cover"
           placeholder="blur"
         />
@@ -25,7 +24,7 @@ const Home = () => {
       <div className="header-bg h-screen w-full absolute top-0 left-0"></div>
       <div className="relative">
         <Header />
-        <main className="flex flex-col gap-6">
+        <main className="flex flex-col gap-6 pb-10">
           <div className="mx-4">
             <h2 className="text-white text-base font-semibold mb-2 flex items-center justify-between mr-4">
               Newest trip!
@@ -41,8 +40,16 @@ const Home = () => {
             title="Near sea:"
           />
           <CategoryTrips
+            trips={getFilteredTrip(trips.slice(1), 'Tropical')}
+            title="Tropical trips:"
+          />
+          <CategoryTrips
             trips={getFilteredTrip(trips.slice(1), 'Mountain')}
             title="Mountain trips:"
+          />
+          <CategoryTrips
+            trips={getFilteredTrip(trips.slice(1), 'Rural')}
+            title="Rural trips:"
           />
         </main>
         <footer className="flex w-full justify-center mt-1">

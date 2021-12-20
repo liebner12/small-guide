@@ -1,8 +1,6 @@
 /* eslint-disable new-cap */
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import CustomAdapter from '../../../logic/adapter/auth';
-
 import {
   collection,
   query,
@@ -16,6 +14,7 @@ import {
   deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../../../firebase';
+import { FirebaseAdapter } from '@next-auth/firebase-adapter';
 
 const firebaseClient = {
   db,
@@ -41,7 +40,13 @@ export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: '/auth/signin',
-    newUser: '/auth/register',
+  },
+  events: {
+    async createUser(message) {
+      updateDoc(doc(db, `users/${message.user.id}`), {
+        emailVerified: false,
+      });
+    },
   },
   callbacks: {
     async session({ session, user }) {
@@ -49,5 +54,5 @@ export default NextAuth({
       return session;
     },
   },
-  adapter: CustomAdapter(firebaseClient),
+  adapter: FirebaseAdapter(firebaseClient),
 });

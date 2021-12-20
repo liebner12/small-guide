@@ -4,8 +4,8 @@ import { CustomSearchBox } from '../elements/SearchBar';
 import SearchResult from '../elements/SearchResult/SearchResult';
 
 const searchClient = algoliasearch(
-  'CVA37N2JF9',
-  '54ba98bd9820564c1e9c6a1f4d925c31'
+  process.env.ALGOLIA_ID!,
+  process.env.ALGOLIA_KEY!
 );
 
 const SearchLayout = () => {

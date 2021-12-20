@@ -22,8 +22,8 @@ const ImagePicker = ({
     const imageFile = event.target.files[0];
 
     const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: type === 'primary' ? 128 : 1080,
+      maxSizeMB: 4,
+      maxWidthOrHeight: type === 'primary' ? 128 : 720,
       useWebWorker: true,
     };
 

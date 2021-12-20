@@ -1,11 +1,19 @@
 import { ReactChild, ReactChildren, useEffect } from 'react';
-import { collection, query, getDocs, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  getDocs,
+  doc,
+  getDoc,
+  limit,
+} from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useDispatch } from 'react-redux';
 import { push } from '../../logic/redux/trip';
 import { Trip } from '../../logic/Types/trip';
 import { useSession } from 'next-auth/react';
 import { userCreated, userSaved } from '../../logic/redux/user';
+import { loading } from '../../logic/redux/isLoading';
 
 interface AppWrapper {
   children: ReactChild | ReactChildren;
@@ -15,7 +23,7 @@ const AppWrapper = ({ children }: AppWrapper) => {
   const dispatch = useDispatch();
   const { data: session, status } = useSession();
   const fetchInitial = async () => {
-    const q = query(collection(db, 'trips'));
+    const q = query(collection(db, 'trips'), limit(100));
 
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
@@ -27,6 +35,7 @@ const AppWrapper = ({ children }: AppWrapper) => {
         } as Trip)
       );
     });
+    dispatch(loading(false));
   };
 
   const fetchUser = async () => {

@@ -1,8 +1,15 @@
+import {
+  ButtonHTMLAttributes,
+  DetailedHTMLProps,
+  MouseEventHandler,
+  TouchEventHandler,
+} from 'react';
 import { getKeyValue } from '../../../logic/utils';
 import Link from '../Link';
 
 const Button = ({ children, className, icon, ...props }: ButtonProps) => {
-  const { iconPosition, onClick, type, size, disabled, ...restProps } = props;
+  const { iconPosition, onClick, type, size, disabled, onHover, ...restProps } =
+    props;
   const link = props.href
     ? { href: props.href }
     : props.to
@@ -24,18 +31,51 @@ const Button = ({ children, className, icon, ...props }: ButtonProps) => {
       </Link>
     );
   }
+  const withHover = (
+    button: DetailedHTMLProps<
+      ButtonHTMLAttributes<HTMLButtonElement>,
+      HTMLButtonElement
+    >
+  ) => {
+    return (
+      <div
+        className="self-stretch"
+        onMouseEnter={onHover as MouseEventHandler<HTMLDivElement> | undefined}
+        onTouchStart={onHover as TouchEventHandler<HTMLDivElement> | undefined}
+      >
+        {button}
+      </div>
+    );
+  };
 
   return (
-    <button
-      {...restProps}
-      className={styles}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {iconPosition === 'left' && icon}
-      {children}
-      {iconPosition === 'right' && icon}
-    </button>
+    <>
+      {onHover ? (
+        withHover(
+          <button
+            {...restProps}
+            className={styles}
+            onClick={onClick}
+            disabled={disabled}
+          >
+            {iconPosition === 'left' && icon}
+            {children}
+            {iconPosition === 'right' && icon}
+          </button>
+        )
+      ) : (
+        <button
+          {...restProps}
+          className={styles}
+          onClick={onClick}
+          disabled={disabled}
+        >
+          {iconPosition === 'left' && icon}
+          {children}
+          {iconPosition === 'right' && icon}
+        </button>
+      )}
+    </>
   );
 };
 
@@ -65,6 +105,7 @@ type ButtonProps = {
   className?: string;
   children?: React.ReactChild | React.ReactChildren[];
   icon?: any;
+  onHover?: Function;
   iconPosition?: 'left' | 'right';
   href?: string;
   to?: string;
