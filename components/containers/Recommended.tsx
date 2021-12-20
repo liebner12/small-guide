@@ -34,7 +34,7 @@ const Recommended = ({ id }: Recommended) => {
 
   return (
     <>
-      {data.content.length > 0 && (
+      {data?.content?.length > 0 && (
         <div className="mx-4 mb-16">
           <h2 className="text-white text-base font-semibold mb-2">
             Recommended for You

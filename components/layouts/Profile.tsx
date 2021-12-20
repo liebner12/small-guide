@@ -41,7 +41,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (createdTrips.length > 0) fetchTrips();
-  }, []);
+  }, [createdTrips]);
 
   return (
     <div className="mx-4 py-4 h-screen flex flex-col">
@@ -62,7 +62,7 @@ export default function Profile() {
         </h1>
         <h1 className="text-grey font-semibold">{session?.user?.email}</h1>
       </div>
-      <div className="mt-8">
+      <div className="my-8">
         <CreatedTrips trips={trips} setTrips={setTrips} />
       </div>
     </div>

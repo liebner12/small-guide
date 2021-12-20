@@ -42,6 +42,8 @@ const SliderItem = ({ placeItem, remove, handleDefaultData }: SliderItem) => {
               width="64"
               height="64"
               className="rounded-lg"
+              placeholder="blur"
+              blurDataURL={placeItem.img}
             />
           ) : (
             <MdImage className="text-white w-16 h-16" viewBox="3 3 18 18" />
