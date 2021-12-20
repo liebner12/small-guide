@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import { edit, main, place, tripPlan } from '../../logic/redux/createTrip';
 import InfoWindow from '../units/InfoWindow';
+import { emptyTrip } from '../../logic/constants';
 
 type Props = {
   maps: GoogleMaps;
@@ -29,8 +30,8 @@ const TripTopBar = ({
   const clearStore = () => {
     dispatch(tripPlan([{ value: 0, places: [], gmapsUrl: '' }]));
     dispatch(place({ place: '', image: '' }));
-    dispatch(main({ name: '', desc: '', tags: [] }));
-    dispatch(edit(''));
+    dispatch(main({ name: '', desc: '', tags: [], category: 'City' }));
+    dispatch(edit(emptyTrip));
   };
   const [infoWindow, setInfoWindow] = useState(false);
   useEffect(() => {

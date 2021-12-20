@@ -33,16 +33,20 @@ const Recommended = ({ id }: Recommended) => {
     );
 
   return (
-    <div className="mx-4 mb-16">
-      <h2 className="text-white text-base font-semibold mb-2">
-        Recommended for You
-      </h2>
-      <div className="flex flex-nowrap overflow-x-auto gap-8 pb-2 pr-4">
-        {data.content.map((trip: Trip) => (
-          <MainCard key={trip.id} trip={trip} />
-        ))}
-      </div>
-    </div>
+    <>
+      {data.content.length > 0 && (
+        <div className="mx-4 mb-16">
+          <h2 className="text-white text-base font-semibold mb-2">
+            Recommended for You
+          </h2>
+          <div className="flex flex-nowrap overflow-x-auto gap-8 pb-2 pr-4">
+            {data.content.map((trip: Trip) => (
+              <MainCard key={trip.id} trip={trip} />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

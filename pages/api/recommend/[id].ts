@@ -4,7 +4,7 @@ import { collection, getDocs, query, limit } from '@firebase/firestore';
 import { db } from '../../../firebase';
 import { ArrayTrips, Trip } from '../../../logic/Types/trip';
 
-const { TfIdf, PorterStemmer } = natural;
+const { TfIdf } = natural;
 
 type ArrayOfTerms = Array<{
   name: string;
@@ -35,15 +35,15 @@ const formatTrip = (trip: Trip) => {
     ' ' +
     trip.desc +
     ' ' +
-    trip.tags.join(' ').repeat(4) +
+    trip.tags.join(' ') +
     ' ' +
-    +(trip.place + ' ').repeat(20) +
+    +(trip.place + ' ').repeat(10) +
     (trip.category + ' ').repeat(10)
   )
     .toLowerCase()
     .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '');
 
-  return formatted.split(' ').map((word: any) => PorterStemmer.stem(word));
+  return formatted.split(' ');
 };
 
 const formatList = (list: ArrayTrips) => {
@@ -110,14 +110,14 @@ export default async function handler(
     };
 
     const getLength = (array: ArrayOfTerms) => {
-      let l = 0;
+      let length = 0;
 
       array.forEach((k) => {
         const findItem = array.find((item) => item.value === k.value);
-        if (findItem) l += findItem.value * findItem.value;
+        if (findItem) length += findItem.value * findItem.value;
       });
 
-      return Math.sqrt(l);
+      return Math.sqrt(length);
     };
 
     const similarity = (
@@ -161,7 +161,7 @@ export default async function handler(
         .flatMap((item) => item.id);
     };
 
-    const getSimilarDocuments = (id: any) => {
+    const getSimilarDocuments = (id: string | string[]) => {
       const similarDocuments = similaritiesListFiltered.find(
         (item) => item.id === id
       );
@@ -173,10 +173,14 @@ export default async function handler(
       return [];
     };
 
+    const responseResult = () => {
+      return getSimilarDocuments(id).map((id) =>
+        inputList.find((trip: Trip) => trip.id === id)
+      );
+    };
+
     res.json({
-      content: inputList.filter((item: any) =>
-        getSimilarDocuments(id).includes(item.id)
-      ),
+      content: responseResult(),
     });
   } catch {
     res.status(500).json({ message: 'Error' });
