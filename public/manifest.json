@@ -23,7 +23,7 @@
       "name": "Favorites trips",
       "short_name": "Favorites",
       "description": "View favorites trips",
-      "url": "/favorites",
+      "url": "/profile/saved",
       "icons": [{ "src": "/images/favorites.png", "sizes": "96x96" }]
     }
   ],

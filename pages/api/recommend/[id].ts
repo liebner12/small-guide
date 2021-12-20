@@ -4,30 +4,8 @@ import { collection, getDocs, query, limit } from '@firebase/firestore';
 import { db } from '../../../firebase';
 import { ArrayTrips, Trip } from '../../../logic/Types/trip';
 
+const Vector = require('vector-object');
 const { TfIdf } = natural;
-
-type ArrayOfTerms = Array<{
-  name: string;
-  value: number;
-}>;
-
-type ArraySimilarities = {
-  id: string;
-  terms: ArrayOfTerms;
-};
-
-type Result = {
-  id: string;
-  similarities: Array<{
-    id: string;
-    value: number;
-  }>;
-};
-
-type Formatted = {
-  id: string;
-  content: string[];
-};
 
 const formatTrip = (trip: Trip) => {
   const formatted = (
@@ -35,7 +13,7 @@ const formatTrip = (trip: Trip) => {
     ' ' +
     trip.desc +
     ' ' +
-    trip.tags.join(' ') +
+    trip.tags.join(' ').repeat(4) +
     ' ' +
     +(trip.place + ' ').repeat(10) +
     (trip.category + ' ').repeat(10)
@@ -53,134 +31,104 @@ const formatList = (list: ArrayTrips) => {
   return outputList;
 };
 
-const request = async () => {
-  const list: any = [];
-  const q = query(collection(db, 'trips'), limit(20));
-
-  const querySnapshot = await getDocs(q);
-  querySnapshot.forEach((doc) => {
-    list.push({
-      ...doc.data(),
-      id: doc.id,
-      timeStamp: doc.data().timeStamp.toDate().toDateString(),
-    });
-  });
-
-  return list;
-};
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
     const id = req.query.id;
+
+    const request = async () => {
+      const list: any = [];
+      const q = query(collection(db, 'trips'), limit(20));
+
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        list.push({
+          ...doc.data(),
+          id: doc.id,
+          timeStamp: doc.data().timeStamp.toDate().toDateString(),
+        });
+      });
+
+      return list;
+    };
+
     const inputList = await request().catch(() =>
       res.status(500).json({ message: 'Error' })
     );
-    const formattedList = formatList(inputList);
 
-    const getTfIdf = (processedDocs: Array<Formatted>) => {
+    const formattedList = formatList(inputList);
+    const createVectors = (processedDocs: any) => {
       const tfidf = new TfIdf();
 
       processedDocs.forEach((processedDocument: any) => {
         tfidf.addDocument(processedDocument.content);
       });
 
-      const terms = (id: number) =>
-        tfidf.listTerms(id).map((term) => {
-          return { name: term.term, value: term.tfidf };
+      const documentVectors = processedDocs.map((doc: any, index: number) => {
+        const items = tfidf.listTerms(index);
+        const termsObject: any = {};
+        items.forEach((term) => {
+          termsObject[term.term] = term.tfidf;
         });
-
-      return processedDocs.map((item, index) => {
-        return { id: item.id, terms: terms(index) };
+        return {
+          id: doc.id,
+          vector: new Vector(termsObject),
+        };
       });
+
+      return documentVectors;
     };
 
-    const dotProduct = (terms: ArrayOfTerms, comparableTerms: ArrayOfTerms) => {
-      let result = 0;
-      terms.forEach((item) => {
-        const exits = comparableTerms.find((term) => term.value === item.value);
-        if (exits) {
-          result += item.value * exits.value;
+    const calcSimilarities = (documents: any) => {
+      const result: any = {};
+      documents.forEach((vector: any) => {
+        result[vector.id] = [];
+      });
+
+      documents.forEach((vec: any, index: number) => {
+        for (let j = 0; j < index; j += 1) {
+          const similarity = vec.vector.getCosineSimilarity(
+            documents[j].vector
+          );
+          if (similarity > 0.1) {
+            result[vec.id].push({
+              id: documents[j].id,
+              similarity: similarity,
+            });
+            result[documents[j].id].push({
+              id: vec.id,
+              similarity: similarity,
+            });
+          }
         }
       });
 
       return result;
     };
 
-    const getLength = (array: ArrayOfTerms) => {
-      let length = 0;
-
-      array.forEach((k) => {
-        const findItem = array.find((item) => item.value === k.value);
-        if (findItem) length += findItem.value * findItem.value;
-      });
-
-      return Math.sqrt(length);
+    const filterList = (id: string) => {
+      return inputList.filter((item: Trip) => item.id === id);
     };
 
-    const similarity = (
-      terms: ArraySimilarities,
-      comparableTerms: ArraySimilarities
-    ) => {
-      return {
-        id: comparableTerms.id,
-        value:
-          dotProduct(terms.terms, comparableTerms.terms) /
-          (getLength(terms.terms) * getLength(comparableTerms.terms)),
-      };
-    };
-
-    const calcSimilaritiesTfidf = () => {
-      const tfidfs = getTfIdf(formattedList);
-
-      return tfidfs.map((item) => {
-        return {
-          id: item.id,
-          similarities: tfidfs.map((comparableTerms) =>
-            similarity(item, comparableTerms)
-          ),
-        };
-      });
-    };
-
-    const similaritiesList = calcSimilaritiesTfidf();
-
-    const similaritiesListFiltered = similaritiesList.map((item) => {
-      return {
-        id: item.id,
-        similarities: item.similarities.filter((item) => item.value < 0.95),
-      };
-    });
-
-    const getTopFive = (similarDocument: Result) => {
-      return similarDocument.similarities
-        .sort((a, b) => b.value - a.value)
-        .slice(0, 5)
-        .flatMap((item) => item.id);
-    };
-
-    const getSimilarDocuments = (id: string | string[]) => {
-      const similarDocuments = similaritiesListFiltered.find(
-        (item) => item.id === id
+    const getSimilarDocuments = (id: any, docs: any) => {
+      const similarDocuments = docs[id].sort(
+        (a: any, b: any) => b.similarity - a.similarity
       );
 
       if (similarDocuments) {
-        return getTopFive(similarDocuments);
+        return similarDocuments.flatMap((item: any) => filterList(item.id));
       }
 
       return [];
     };
 
-    const responseResult = () => {
-      return getSimilarDocuments(id).map((id) =>
-        inputList.find((trip: Trip) => trip.id === id)
-      );
-    };
-
     res.json({
-      content: responseResult(),
+      content: getSimilarDocuments(
+        id,
+        calcSimilarities(createVectors(formattedList))
+      ),
     });
   } catch {
     res.status(500).json({ message: 'Error' });
