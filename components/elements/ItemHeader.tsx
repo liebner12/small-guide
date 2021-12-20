@@ -19,6 +19,7 @@ interface Props {
   authorId: string;
   handleToFavorites: Function;
   isActive: boolean;
+  editTrip: Function;
 }
 
 const ItemHeader = ({
@@ -28,6 +29,7 @@ const ItemHeader = ({
   authorId,
   handleToFavorites,
   isActive,
+  editTrip,
 }: Props) => {
   const [defaultHeight, setDefaultHeight] = useState(0);
   useEffect(() => {
@@ -95,6 +97,7 @@ const ItemHeader = ({
                   icon={<MdEdit className="h-6 w-6" />}
                   type="icon"
                   className="text-white"
+                  onClick={() => editTrip()}
                 ></Button>
               ) : (
                 <Button

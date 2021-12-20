@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Slider from '../containers/Slider';
 import ConfirmModal from '../elements/ConfirmModal';
 import PlaceModal from '../elements/PlaceModal';
@@ -8,10 +8,12 @@ import { tripPlan } from '../../logic/redux/createTrip';
 import { RootState } from '../../logic/redux/store';
 import router from 'next/router';
 import GoogleMap from '../elements/GoogleMap';
+import { Place } from '../../logic/Types/createTrip';
 
 const CreateTrip = () => {
   const tripSelected = useSelector((state: RootState) => state.tripCreate.trip);
   const dispatch = useDispatch();
+  const [edit, setEdit] = useState(0);
   const [visible, setVisible] = useState(false);
   const [place, setPlace] = useState({
     id: 0,
@@ -22,6 +24,7 @@ const CreateTrip = () => {
     placeId: '',
   });
   const [trip, setTrip] = useState(tripSelected);
+  const [places, setPlaces] = useState<Array<Place>>([]);
   const [currentDay, setCurrentDay] = useState(0);
   const [maps, setMaps] = useState({
     mapApiLoaded: false,
@@ -31,7 +34,7 @@ const CreateTrip = () => {
   const [openModal, setOpenModal] = useState(false);
 
   const getCurrentPlaces = () => {
-    return trip.filter((value) => value.value === currentDay)[0].places;
+    return trip.filter((value) => value.value === currentDay)[0]?.places;
   };
 
   const setDirectionsUrl = (trip: any) => {
@@ -61,22 +64,51 @@ const CreateTrip = () => {
     return true;
   };
 
+  const closeModal = () => {
+    setEdit(0);
+    setVisible(false);
+  };
+
+  const handleEditAttraction = (id: number) => {
+    setEdit(id);
+    setVisible(true);
+  };
+
   const onFinish = () => {
     dispatch(tripPlan(trip));
     router.push('/create/place');
   };
 
+  const updateTrip = () => {
+    return trip.map((day) =>
+      day.value === currentDay
+        ? { ...day, gmapsUrl: setDirectionsUrl(places), places }
+        : day
+    );
+  };
+
+  const setCurrentDayPlaces = () => {
+    return trip.filter((day) => day.value === currentDay)[0].places;
+  };
+
+  useEffect(() => {
+    setTrip(updateTrip());
+  }, [places]);
+
+  useEffect(() => {
+    setPlaces(setCurrentDayPlaces());
+  }, [currentDay]);
+
   return (
     <div className="h-screen w-full flex flex-col overflow-y-hidden relative">
       {visible && (
         <PlaceModal
+          edit={edit}
           place={place}
+          places={places}
+          setPlaces={setPlaces}
           setPlace={setPlace}
-          setTrip={setTrip}
-          currentDay={currentDay}
-          trip={trip}
-          setVisible={setVisible}
-          setDirectionsUrl={setDirectionsUrl}
+          setVisible={closeModal}
         />
       )}
       {maps.mapApiLoaded && (
@@ -105,11 +137,14 @@ const CreateTrip = () => {
         />
       </div>
       <Slider
+        places={places}
+        setPlaces={setPlaces}
         setTrip={setTrip}
         setCurrentDay={setCurrentDay}
         trip={trip}
         currentDay={currentDay}
         getCurrentPlaces={getCurrentPlaces}
+        handleDefaultData={handleEditAttraction}
       />
     </div>
   );

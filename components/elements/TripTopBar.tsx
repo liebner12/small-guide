@@ -1,10 +1,13 @@
 import { FiSearch } from 'react-icons/fi';
 import { MdArrowBack } from 'react-icons/md';
 import Button from '../units/Button/Button';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { GoogleMaps } from '../../logic/Types/createTrip';
 import useComponenFocus from '../../logic/hooks/useComponentFocus';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
+import { edit, main, place, tripPlan } from '../../logic/redux/createTrip';
+import InfoWindow from '../units/InfoWindow';
 
 type Props = {
   maps: GoogleMaps;
@@ -22,28 +25,28 @@ const TripTopBar = ({
   openModal,
 }: Props) => {
   const router = useRouter();
-  const browserTabcloseHandler = (e: any) => {
-    e.preventDefault();
-    e.returnValue = '';
+  const dispatch = useDispatch();
+  const clearStore = () => {
+    dispatch(tripPlan([{ value: 0, places: [], gmapsUrl: '' }]));
+    dispatch(place({ place: '', image: '' }));
+    dispatch(main({ name: '', desc: '', tags: [] }));
+    dispatch(edit(''));
   };
-
+  const [infoWindow, setInfoWindow] = useState(false);
   useEffect(() => {
-    router.beforePopState((props: any) => {
+    router.beforePopState(() => {
       if (openModal) {
+        clearStore();
         return true;
       }
-      console.log(props);
       router.replace('/create');
       window.history.pushState('/', '');
       setOpenModal(true);
 
       return false;
     });
-    window.onbeforeunload = browserTabcloseHandler;
+
     return () => {
-      if (window) {
-        window.onbeforeunload = null;
-      }
       router.beforePopState(() => {
         return true;
       });
@@ -62,13 +65,19 @@ const TripTopBar = ({
         <SearchBox maps={maps} />
         <Button
           size="wide"
-          className="mx-1 self-stretch"
+          className="h-full mx-1"
           onClick={() => isValid() && onFinish()}
           disabled={!isValid()}
+          onHover={() => (!isValid() ? setInfoWindow(true) : null)}
         >
           Finish
         </Button>
       </div>
+      <InfoWindow
+        infoWindow={infoWindow}
+        setInfoWindow={setInfoWindow}
+        text="Data doesn't meet requirements. Please check if all days have at least 3 attractions."
+      />
     </>
   );
 };

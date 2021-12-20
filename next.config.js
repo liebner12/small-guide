@@ -13,6 +13,9 @@ module.exports = withPWA({
   },
   env: {
     GOOGLE_MAPS_KEY: process.env.GOOGLE_MAPS_KEY,
+    ALGOLIA_KEY: process.env.ALGOLIA_KEY,
+    ALGOLIA_ID: process.env.ALGOLIA_ID,
+    MAP_ID: process.env.MAP_ID,
   },
   pwa: {
     dest: 'public',
@@ -20,5 +23,8 @@ module.exports = withPWA({
     skipWaiting: true,
     runtimeCaching,
     buildExcludes: [/middleware-manifest.json$/],
+  },
+  experimental: {
+    outputStandalone: true,
   },
 });

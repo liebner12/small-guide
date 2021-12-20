@@ -42,7 +42,7 @@ export default function Profile() {
   useEffect(() => {
     if (createdTrips.length > 0) fetchTrips();
   }, []);
-  console.log(session, trips);
+
   return (
     <div className="mx-4 py-4 h-screen flex flex-col">
       <BackButton to="/" />

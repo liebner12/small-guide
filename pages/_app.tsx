@@ -5,9 +5,9 @@ import { AnimateSharedLayout } from 'framer-motion';
 import { SessionProvider } from 'next-auth/react';
 import { Provider } from 'react-redux';
 import { store } from '../logic/redux/store';
-import AppWrapper from '../components/layouts/AppWrapper';
-import { useRouter } from 'next/router';
+import AppWrapper from '../components/containers/AppWrapper';
 import { useEffect, useState } from 'react';
+
 function MyApp({
   Component,
   pageProps: { session, ...pageProps },
@@ -34,7 +34,6 @@ function MyApp({
     }
   }, []);
 
-  const routerUsed = useRouter();
   useEffect(() => {
     if (
       typeof window !== 'undefined' &&
@@ -42,15 +41,14 @@ function MyApp({
       (window as any).workbox !== undefined &&
       isOnline
     ) {
-      // skip index route, because it's already cached under `start-url` caching object
-      if (routerUsed.route !== '/') {
+      if (router.route !== '/') {
         const wb = (window as any).workbox;
         wb.active.then(() => {
           wb.messageSW({ action: 'CACHE_NEW_ROUTE' });
         });
       }
     }
-  }, [isOnline, routerUsed.route]);
+  }, [isOnline, router.route]);
   return (
     <AnimateSharedLayout>
       <Provider store={store}>

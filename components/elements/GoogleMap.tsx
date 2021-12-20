@@ -52,7 +52,7 @@ const GoogleMap = ({
     return {
       gestureHandling: 'greedy',
       disableDefaultUI: true,
-      mapId: '2f979cb8b5d9c346',
+      mapId: process.env.MAP_ID,
     };
   };
 

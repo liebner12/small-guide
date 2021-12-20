@@ -37,12 +37,12 @@ const DefaultCard = ({ trip, layoutId }: DefaultCard) => {
       <Link to={`/trip/${trip.id}`} className={styles.card}>
         <div className="w-full h-44 relative rounded-xl overflow-hidden">
           <Image
-            src={trip.image}
+            src={trip?.image}
             alt={trip.name}
             layout="fill"
             objectFit="cover"
             placeholder="blur"
-            blurDataURL={trip.image}
+            blurDataURL={trip?.image}
           />
 
           <Button className="absolute z-10 top-2 right-2" size="small">

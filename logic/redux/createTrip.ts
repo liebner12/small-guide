@@ -16,6 +16,7 @@ export interface TripState {
   main: TripMain;
   place: TripPlace;
   trip: FullTrip;
+  edit: string;
 }
 
 const initialState: TripState = {
@@ -29,6 +30,7 @@ const initialState: TripState = {
     image: '',
   },
   trip: [{ value: 0, places: [], gmapsUrl: '' }],
+  edit: '',
 };
 
 export const createTripSlice = createSlice({
@@ -44,10 +46,13 @@ export const createTripSlice = createSlice({
     place: (state, action: PayloadAction<TripPlace>) => {
       state.place = action.payload;
     },
+    edit: (state, action: PayloadAction<string>) => {
+      state.edit = action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { main, tripPlan, place } = createTripSlice.actions;
+export const { main, tripPlan, place, edit } = createTripSlice.actions;
 
 export default createTripSlice.reducer;

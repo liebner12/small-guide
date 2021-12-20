@@ -1,17 +1,16 @@
 import TripHeader from '../containers/TripHeader';
 import Button from '../units/Button/Button';
-import Image from 'next/image';
-import { MdImage, MdNavigation } from 'react-icons/md';
+import { MdNavigation } from 'react-icons/md';
 import { Trip } from '../../logic/Types/trip';
 import { useState } from 'react';
 import Recommended from '../containers/Recommended';
+import TripList from '../containers/TripList';
 type TripLayout = {
   trip: Trip;
 };
 
 const Trip = ({ trip }: TripLayout) => {
   const [currentDay, setCurrentDay] = useState(0);
-
   const getCurrentDayTrip = () => {
     return trip.trip[currentDay];
   };
@@ -44,34 +43,7 @@ const Trip = ({ trip }: TripLayout) => {
               </Button>
             ))}
           </div>
-          <ul className="mx-4">
-            {getCurrentDayTrip().places.map((place, index) => (
-              <li className="flex items-center" key={place.id}>
-                <span className="text-whiteGrey font-bold mr-2">{`${
-                  index + 1
-                }.`}</span>
-                <div className="mx-2 flex-shrink-0 my-3">
-                  {place.img ? (
-                    <Image
-                      src={place.img}
-                      width="64"
-                      height="64"
-                      className="rounded-lg"
-                    />
-                  ) : (
-                    <MdImage
-                      className="text-white w-16 h-16 rounded-lg"
-                      viewBox="3 3 18 18"
-                    />
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">{place.title}</h3>
-                  <p className="text-whiteGrey">{place.desc}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <TripList currentDayTrip={getCurrentDayTrip()} />
         </div>
         <Recommended id={trip.id} />
         <div className="px-4 fixed bottom-2 flex right-0">

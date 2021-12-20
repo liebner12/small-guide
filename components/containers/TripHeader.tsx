@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { pushSaved, removeSaved } from '../../logic/redux/user';
 import { RootState } from '../../logic/redux/store';
 import { useEffect, useState } from 'react';
+import { edit, main, place, tripPlan } from '../../logic/redux/createTrip';
+import { useRouter } from 'next/router';
 
 type TripHeader = {
   trip: Trip;
@@ -16,6 +18,7 @@ type TripHeader = {
 
 const TripHeader = ({ trip }: TripHeader) => {
   const { data: session } = useSession();
+  const router = useRouter();
   const trips = useSelector((state: RootState) => state.user);
   const [isActive, setActive] = useState(false);
 
@@ -49,6 +52,14 @@ const TripHeader = ({ trip }: TripHeader) => {
     }
   };
 
+  const editTrip = () => {
+    dispatch(tripPlan(trip.trip));
+    dispatch(place({ place: trip.place, image: trip.image }));
+    dispatch(main({ name: trip.name, desc: trip.desc, tags: trip.tags }));
+    dispatch(edit(trip.id));
+    router.push('/create');
+  };
+
   return (
     <>
       <ItemHeader
@@ -58,10 +69,13 @@ const TripHeader = ({ trip }: TripHeader) => {
         id={trip.id}
         handleToFavorites={handleToFavorites}
         isActive={isActive}
+        editTrip={editTrip}
       />
       <div className="mt-3 mx-4 ">
         <div className="flex justify-between  items-center w-full">
-          <h1 className="font-bold text-white text-2xl">{trip.name}</h1>
+          <h1 className="font-bold text-white text-2xl break-all">
+            {trip.name}
+          </h1>
           <Button>{trip.place}</Button>
         </div>
         <div className="flex w-full justify-between">

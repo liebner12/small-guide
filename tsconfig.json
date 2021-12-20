@@ -23,5 +23,5 @@
     "incremental": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "logic/adapter/auth.ts"]
+  "exclude": ["node_modules"]
 }

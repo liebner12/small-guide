@@ -4,6 +4,7 @@ import CreateTrip from '../../components/layouts/CreateTrip';
 import pageAuthenticated, {
   PageAuthenticatedLoader,
 } from '../../components/containers/PageAuthenticated';
+import CreateTripWrapper from '../../components/containers/CreatTripWrapper';
 
 const Create: NextPage = () => {
   const { status } = useSession();
@@ -12,9 +13,9 @@ const Create: NextPage = () => {
   }
 
   return (
-    <>
+    <CreateTripWrapper>
       <CreateTrip />
-    </>
+    </CreateTripWrapper>
   );
 };
 

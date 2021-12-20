@@ -1,11 +1,33 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-const Vector = require('vector-object');
 import natural from 'natural';
 import { collection, getDocs, query, limit } from '@firebase/firestore';
 import { db } from '../../../firebase';
 import { ArrayTrips, Trip } from '../../../logic/Types/trip';
 
 const { TfIdf, PorterStemmer } = natural;
+
+type ArrayOfTerms = Array<{
+  name: string;
+  value: number;
+}>;
+
+type ArraySimilarities = {
+  id: string;
+  terms: ArrayOfTerms;
+};
+
+type Result = {
+  id: string;
+  similarities: Array<{
+    id: string;
+    value: number;
+  }>;
+};
+
+type Formatted = {
+  id: string;
+  content: string[];
+};
 
 const formatTrip = (trip: Trip) => {
   const formatted = (
@@ -31,122 +53,129 @@ const formatList = (list: ArrayTrips) => {
   return outputList;
 };
 
+const request = async () => {
+  const list: any = [];
+  const q = query(collection(db, 'trips'), limit(20));
+
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach((doc) => {
+    list.push({
+      ...doc.data(),
+      id: doc.id,
+      timeStamp: doc.data().timeStamp.toDate().toDateString(),
+    });
+  });
+
+  return list;
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
     const id = req.query.id;
-
-    const request = async () => {
-      const list: any = [];
-      const q = query(collection(db, 'trips'), limit(20));
-
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        list.push({
-          ...doc.data(),
-          id: doc.id,
-          timeStamp: doc.data().timeStamp.toDate().toDateString(),
-        });
-      });
-
-      return list;
-    };
-
     const inputList = await request().catch(() =>
       res.status(500).json({ message: 'Error' })
     );
-
     const formattedList = formatList(inputList);
-    const createVectorsFromDocs = (processedDocs: any) => {
+
+    const getTfIdf = (processedDocs: Array<Formatted>) => {
       const tfidf = new TfIdf();
 
       processedDocs.forEach((processedDocument: any) => {
         tfidf.addDocument(processedDocument.content);
       });
 
-      const documentVectors = [];
+      const terms = (id: number) =>
+        tfidf.listTerms(id).map((term) => {
+          return { name: term.term, value: term.tfidf };
+        });
 
-      for (let i = 0; i < processedDocs.length; i += 1) {
-        const processedDocument = processedDocs[i];
-        const obj: any = {};
-
-        const items = tfidf.listTerms(i);
-
-        for (let j = 0; j < items.length; j += 1) {
-          const item = items[j];
-          obj[item.term] = item.tfidf;
-        }
-
-        const documentVector = {
-          id: processedDocument.id,
-          vector: new Vector(obj),
-        };
-
-        documentVectors.push(documentVector);
-      }
-      return documentVectors;
+      return processedDocs.map((item, index) => {
+        return { id: item.id, terms: terms(index) };
+      });
     };
 
-    const calcSimilarities = (docVectors: any) => {
-      // number of results that you want to return.
-      const MAX_SIMILAR = 5;
-      // min cosine similarity score that should be returned.
-      const MIN_SCORE = 0.4;
-      const data: any = {};
-
-      for (let i = 0; i < docVectors.length; i += 1) {
-        const documentVector = docVectors[i];
-        const { id } = documentVector;
-
-        data[id] = [];
-      }
-
-      for (let i = 0; i < docVectors.length; i += 1) {
-        for (let j = 0; j < i; j += 1) {
-          const idi = docVectors[i].id;
-          const vi = docVectors[i].vector;
-          const idj = docVectors[j].id;
-          const vj = docVectors[j].vector;
-          const similarity = vi.getCosineSimilarity(vj);
-
-          if (similarity > MIN_SCORE) {
-            data[idi].push({ id: idj, score: similarity });
-            data[idj].push({ id: idi, score: similarity });
-          }
-        }
-      }
-
-      Object.keys(data).forEach((id) => {
-        data[id].sort((a: any, b: any) => b.score - a.score);
-
-        if (data[id].length > MAX_SIMILAR) {
-          data[id] = data[id].slice(0, MAX_SIMILAR);
+    const dotProduct = (terms: ArrayOfTerms, comparableTerms: ArrayOfTerms) => {
+      let result = 0;
+      terms.forEach((item) => {
+        const exits = comparableTerms.find((term) => term.value === item.value);
+        if (exits) {
+          result += item.value * exits.value;
         }
       });
 
-      return data;
+      return result;
     };
 
-    const filterList = (id: string) => {
-      return inputList.filter((item: Trip) => item.id === id);
+    const getLength = (array: ArrayOfTerms) => {
+      let l = 0;
+
+      array.forEach((k) => {
+        const findItem = array.find((item) => item.value === k.value);
+        if (findItem) l += findItem.value * findItem.value;
+      });
+
+      return Math.sqrt(l);
     };
 
-    const getSimilarDocuments = (id: any, trainedData: any) => {
-      const similarDocuments = trainedData[id];
+    const similarity = (
+      terms: ArraySimilarities,
+      comparableTerms: ArraySimilarities
+    ) => {
+      return {
+        id: comparableTerms.id,
+        value:
+          dotProduct(terms.terms, comparableTerms.terms) /
+          (getLength(terms.terms) * getLength(comparableTerms.terms)),
+      };
+    };
 
-      if (similarDocuments === undefined) {
-        return [];
+    const calcSimilaritiesTfidf = () => {
+      const tfidfs = getTfIdf(formattedList);
+
+      return tfidfs.map((item) => {
+        return {
+          id: item.id,
+          similarities: tfidfs.map((comparableTerms) =>
+            similarity(item, comparableTerms)
+          ),
+        };
+      });
+    };
+
+    const similaritiesList = calcSimilaritiesTfidf();
+
+    const similaritiesListFiltered = similaritiesList.map((item) => {
+      return {
+        id: item.id,
+        similarities: item.similarities.filter((item) => item.value < 0.95),
+      };
+    });
+
+    const getTopFive = (similarDocument: Result) => {
+      return similarDocument.similarities
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5)
+        .flatMap((item) => item.id);
+    };
+
+    const getSimilarDocuments = (id: any) => {
+      const similarDocuments = similaritiesListFiltered.find(
+        (item) => item.id === id
+      );
+
+      if (similarDocuments) {
+        return getTopFive(similarDocuments);
       }
 
-      return similarDocuments.flatMap((item: any) => filterList(item.id));
+      return [];
     };
 
     res.json({
-      content: getSimilarDocuments(
-        id,
-        calcSimilarities(createVectorsFromDocs(formattedList))
+      content: inputList.filter((item: any) =>
+        getSimilarDocuments(id).includes(item.id)
       ),
     });
   } catch {
