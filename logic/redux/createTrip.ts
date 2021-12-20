@@ -1,10 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { emptyTrip } from '../constants';
 import { FullTrip } from '../Types/createTrip';
+import { Trip, TripCategorie } from '../Types/trip';
 
 type TripMain = {
   name: string;
   desc: string;
   tags: Array<string>;
+  category: TripCategorie;
 };
 
 type TripPlace = {
@@ -16,7 +19,7 @@ export interface TripState {
   main: TripMain;
   place: TripPlace;
   trip: FullTrip;
-  edit: string;
+  edit: Trip;
 }
 
 const initialState: TripState = {
@@ -24,13 +27,14 @@ const initialState: TripState = {
     name: '',
     desc: '',
     tags: [],
+    category: 'City',
   },
   place: {
     place: '',
     image: '',
   },
   trip: [{ value: 0, places: [], gmapsUrl: '' }],
-  edit: '',
+  edit: emptyTrip,
 };
 
 export const createTripSlice = createSlice({
@@ -46,7 +50,7 @@ export const createTripSlice = createSlice({
     place: (state, action: PayloadAction<TripPlace>) => {
       state.place = action.payload;
     },
-    edit: (state, action: PayloadAction<string>) => {
+    edit: (state, action: PayloadAction<Trip>) => {
       state.edit = action.payload;
     },
   },

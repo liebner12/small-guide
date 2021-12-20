@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { TripCategoriesArray } from '../../logic/Types/trip';
 import { RootState } from '../../logic/redux/store';
-import { tripsCategories } from '../../logic/constants';
+import { emptyTrip, tripsCategories } from '../../logic/constants';
 import {
   main,
   tripPlan,
@@ -23,7 +23,12 @@ import {
   serverTimestamp,
   updateDoc,
 } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  deleteObject,
+} from 'firebase/storage';
 import { db, storage } from '../../firebase';
 import { Place } from '../../logic/Types/createTrip';
 
@@ -36,7 +41,7 @@ const MainTrip = () => {
   const edit = useSelector((state: RootState) => state.tripCreate.edit);
   const [name, setName] = useState(mainSelector.name);
   const [desc, setDesc] = useState(mainSelector.desc);
-  const [category, setCategory] = useState(categories[0]);
+  const [category, setCategory] = useState(mainSelector.category);
   const [tag, setTag] = useState(mainSelector.tags.join(', '));
   const [sending, setSending] = useState(false);
   const { data: session } = useSession();
@@ -62,14 +67,14 @@ const MainTrip = () => {
 
   const saveInStore = () => {
     const tagsList = tag.split(', ');
-    dispatch(main({ name, desc, tags: tagsList }));
+    dispatch(main({ name, desc, tags: tagsList, category: category }));
   };
 
   const clearStore = () => {
     dispatch(tripPlan([{ value: 0, places: [], gmapsUrl: '' }]));
     dispatch(placeRedux({ place: '', image: '' }));
-    dispatch(main({ name: '', desc: '', tags: [] }));
-    dispatch(editRedux(''));
+    dispatch(main({ name: '', desc: '', tags: [], category: 'City' }));
+    dispatch(editRedux(emptyTrip));
   };
 
   const handleFinish = async () => {
@@ -79,6 +84,26 @@ const MainTrip = () => {
       clearStore();
       Router.push('/');
     }
+  };
+
+  const checkRedunantImages = () => {
+    const newImages = trip.flatMap((item) =>
+      item.places.map((place) => place.id)
+    );
+    const oldImages = edit.trip.flatMap((item) =>
+      item.places.flatMap((place) => {
+        return { id: place.id, image: place.img };
+      })
+    );
+    return oldImages.filter((item) => !newImages.includes(item.id));
+  };
+
+  const deleteImages = () => {
+    const images = checkRedunantImages();
+    images.forEach(
+      async (image) =>
+        await deleteObject(ref(storage, `trips/${edit.id}/places/${image.id}`))
+    );
   };
 
   const documentData = () => {
@@ -104,7 +129,7 @@ const MainTrip = () => {
   };
 
   const updateDocument = () => {
-    return updateDoc(doc(db, `trips/${edit}`), documentData());
+    return updateDoc(doc(db, `trips/${edit.id}`), documentData());
   };
 
   const updateMainImage = async (id: string) => {
@@ -142,7 +167,7 @@ const MainTrip = () => {
             console.log(err);
           });
         if (fetchedImage) {
-          await uploadBytes(imageRefPlaces, fetchedImage).then(async () => {
+          await uploadBytes(imageRefPlaces, fetchedImage).then(async (ref) => {
             downloadUrl = await getDownloadURL(imageRefPlaces);
           });
         } else {
@@ -177,10 +202,11 @@ const MainTrip = () => {
 
   const handleCreateTrip = async () => {
     if (session?.user) {
-      if (edit !== '') {
+      if (edit.id !== '') {
         await updateDocument();
-        await updateMainImage(edit);
-        await uploadPlacesImages(edit);
+        await updateMainImage(edit.id);
+        await uploadPlacesImages(edit.id);
+        deleteImages();
       } else {
         const docRef = await addNewDoc();
         await updateMainImage(docRef.id);
@@ -190,6 +216,7 @@ const MainTrip = () => {
   };
   return (
     <div className="flex flex-col h-screen relative">
+      {console.log(checkRedunantImages())}
       {openModal && (
         <ConfirmModal setVisible={setOpenModal} onFinish={handleFinish} />
       )}

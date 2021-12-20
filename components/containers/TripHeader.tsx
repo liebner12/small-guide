@@ -55,8 +55,15 @@ const TripHeader = ({ trip }: TripHeader) => {
   const editTrip = () => {
     dispatch(tripPlan(trip.trip));
     dispatch(place({ place: trip.place, image: trip.image }));
-    dispatch(main({ name: trip.name, desc: trip.desc, tags: trip.tags }));
-    dispatch(edit(trip.id));
+    dispatch(
+      main({
+        name: trip.name,
+        desc: trip.desc,
+        tags: trip.tags,
+        category: trip.category,
+      })
+    );
+    dispatch(edit(trip));
     router.push('/create');
   };
 

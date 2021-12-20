@@ -88,7 +88,7 @@ const ItemHeader = ({
           </div>
           {session?.user && (
             <motion.div
-              className="absolute z-10 bottom-2 right-2"
+              className="absolute z-20 bottom-2 right-2"
               style={{ right: offsetRight }}
             >
               {(session.user as any).uid === authorId ? (
